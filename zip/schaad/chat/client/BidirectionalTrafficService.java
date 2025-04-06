@@ -2,6 +2,8 @@ package zip.schaad.chat.client;
 
 import java.io.*;
 import java.net.*;
+import java.util.NoSuchElementException;
+import java.util.Scanner;
 
 class BidirectionalTrafficService
 {
@@ -22,6 +24,29 @@ class BidirectionalTrafficService
     public PrintWriter getOutboundTraffic()
     {
         return this.outboundTraffic;
+    }
+
+    public void listenForUserInput()
+    {
+        Scanner userMessageReader = new Scanner(System.in);
+        
+        while (true) {
+            String messageToSend;
+
+            try {
+                messageToSend = userMessageReader.nextLine();
+
+                if (messageToSend.isBlank()) {
+                    continue;
+                }
+
+                this.outboundTraffic.println(messageToSend);
+
+                if (messageToSend.equals("DISCONNECT")) {
+                    break;
+                }
+            } catch (NoSuchElementException e) {}
+        }
     }
 
     public void close()
