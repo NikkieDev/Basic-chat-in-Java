@@ -5,7 +5,7 @@ import java.net.*;
 
 class ClientHandler implements Runnable
 {
-    private final static int ACTIVITY_TIMEOUT_IN_MILLISECONDS = 30000;
+    private final static int ACTIVITY_TIMEOUT_IN_MILLISECONDS = 5000;
     private final static int STREAM_TIMEOUT_IN_MILLISECONDS = 10000;
     
     private Socket clientConnection;
@@ -44,7 +44,7 @@ class ClientHandler implements Runnable
     private void subscribeToMessages()
     {
         this.subscriberId = MessageHandler.getInstance().subscribe(this);
-        this.sendMessage("Connected to messages, you are number " + String.valueOf(this.subscriberId));
+        this.sendMessage("Connected to messages, you are number " + this.subscriberId);
         MessageHandler.getInstance().sendToAllSubscribers("Client " + this.subscriberId + " has entered the room");
     }
 
@@ -64,29 +64,39 @@ class ClientHandler implements Runnable
     private void acceptTrafficFromClient() throws IOException, InterruptedException
     {
         this.clientInputStreamBuffered = new BufferedReader(new InputStreamReader(this.clientConnection.getInputStream()));
-        long lastActivityTime = System.currentTimeMillis();
+        long lastHeartBeat = System.currentTimeMillis();
 
         while (true) {
-            if (System.currentTimeMillis() - lastActivityTime >= ACTIVITY_TIMEOUT_IN_MILLISECONDS) {
-                System.out.println("Sending keepalive to " + this.subscriberId);
-
+            if (System.currentTimeMillis() - lastHeartBeat >= ACTIVITY_TIMEOUT_IN_MILLISECONDS) {
                 if (!this.sendKeepAliveSignal()) {
                     break;
                 }
 
-                lastActivityTime = System.currentTimeMillis();
-                System.out.println("Keepalive heartbeat from " + this.subscriberId);
+                lastHeartBeat = System.currentTimeMillis();
             }
 
             try {
                 String messageFromClient = this.clientInputStreamBuffered.readLine(); // times out after STREAM_TIMEOUT_IN_MILLISECONDS
 
-                if (messageFromClient != null) {
-                    MessageHandler.getInstance().sendToAllSubscribers("[Client "+ this.subscriberId +"]: " + messageFromClient);
-                    lastActivityTime = System.currentTimeMillis();
+                if (messageFromClient.isBlank()) {
+                    return;
+                }
+
+                switch (messageFromClient) {
+                    case "DISCONNECT" -> this.disconnectClient();
+                    case "HEARTBEAT" -> lastHeartBeat = System.currentTimeMillis();
+                    default -> MessageHandler.getInstance().sendToAllSubscribers("[Client " + this.subscriberId + "]: " + messageFromClient);
                 }
             } catch (IOException e) {}
         }
+    }
+
+    private void disconnectClient()
+    {
+        System.out.println("Disconnecting client " + this.subscriberId);
+        MessageHandler.getInstance().sendToAllSubscribers("Client " + this.subscriberId + " left the room");
+        MessageHandler.getInstance().unsubscribe(this.subscriberId);
+        this.tryCloseConnection();
     }
 
     public void sendMessage(String message)
@@ -108,9 +118,7 @@ class ClientHandler implements Runnable
         } catch (InterruptedException e) {
             System.out.println("Thread interrupted.");
         } finally {
-            MessageHandler.getInstance().sendToAllSubscribers("Client " + this.subscriberId + " left the room");
-            MessageHandler.getInstance().unsubscribe(this.subscriberId);
-            this.tryCloseConnection();
+            this.disconnectClient();
             System.out.println("Client " + this.subscriberId + " has disconnected");
         }
     }

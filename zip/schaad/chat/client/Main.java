@@ -16,15 +16,17 @@ public class Main
         int port = 8080;
 
         System.out.print("Choose a server to connect to (ipv4): ");
-        ipv4 = in.nextLine();
 
-        while (ipv4.equals("")) {
-            ipv4 = in.nextLine();
-        }
 
-        System.out.flush();
-        TerminalUtil.PrintSystem("Connecting to " + ipv4 + ":" + String.valueOf(port));
         try {
+            ipv4 = in.nextLine();
+
+            while (ipv4.equals("")) {
+                ipv4 = in.nextLine();
+            }
+
+            TerminalUtil.PrintSystem("Connecting to " + ipv4 + ":" + String.valueOf(port));
+            
             connectionHandler = ServerConnectionHandler.getInstance();
             connectionHandler.connectToServer(ipv4, port);
 
@@ -45,12 +47,16 @@ public class Main
                 String message;
 
                 while ((message = trafficService.getInboundTraffic().readLine()) != null) {
+                    if (message.equals("KEEPALIVE")) {
+                        trafficService.getOutboundTraffic().println("HEARTBEAT");
+                        continue;
+                    }
+
                     System.out.print("\r");
                     System.out.println(message);
                 }
             } catch (IOException e) {
                 TerminalUtil.PrintSystem("Connection to the server has been lost.");
-                connectionHandler.disconnectFromServer();
             }
         });
 
