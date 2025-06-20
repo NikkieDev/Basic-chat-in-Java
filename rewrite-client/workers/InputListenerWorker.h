@@ -1,10 +1,12 @@
 #ifndef INPUT_LISTENER_WORKER_H_
 #define INPUT_LISTENER_WORKER_H_
 
+#include "../common/Runnable.h"
+
 #include <string>
 #include <WinSock2.h>
 
-class InputListenerWorker
+class InputListenerWorker : public AbstractRunnable
 {
     private:
         SOCKET SockFD;
