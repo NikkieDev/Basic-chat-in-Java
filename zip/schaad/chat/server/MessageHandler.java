@@ -47,7 +47,7 @@ class MessageHandler
             if (systemMessage) {
                 this.subscribers.get(i).sendMessage("[System]: " + String.valueOf(message));
             } else {
-                // this.subscribers.get(i).sendMessage(message);
+                this.subscribers.get(i).sendMessage(message);
             }
 
         }
