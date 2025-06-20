@@ -2,11 +2,12 @@
 #define INPUT_LISTENER_WORKER_H_
 
 #include "../common/Runnable.h"
+#include "../common/Listener.h"
 
 #include <string>
 #include <WinSock2.h>
 
-class InputListenerWorker : public AbstractRunnable
+class InputListenerWorker : public AbstractRunnable, public AbstractListener
 {
     private:
         SOCKET SockFD;
@@ -20,7 +21,7 @@ class InputListenerWorker : public AbstractRunnable
         InputListenerWorker(const SOCKET SockFD);
         ~InputListenerWorker();
         void Run();
-        void StopChatting();
+        void Stop();
 };
 
 #endif

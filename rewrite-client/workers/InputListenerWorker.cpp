@@ -33,7 +33,7 @@ void InputListenerWorker::SendMessageToServer(const std::string& message)
     }
 }
 
-void InputListenerWorker::StopChatting()
+void InputListenerWorker::Stop()
 {
     this->listening = false;
 }
@@ -41,7 +41,7 @@ void InputListenerWorker::StopChatting()
 bool InputListenerWorker::MatchesCommand(const std::string& command)
 {
     if ("DISCONNECT" == command) {
-        this->StopChatting();
+        this->Stop();
         return true;
     }
 
