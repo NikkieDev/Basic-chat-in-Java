@@ -45,7 +45,7 @@ class ClientHandler implements Runnable
     {
         this.subscriberId = MessageHandler.getInstance().subscribe(this);
         this.sendMessage("Connected to messages, you are number " + this.subscriberId);
-        MessageHandler.getInstance().sendToAllSubscribers("Client " + this.subscriberId + " has entered the room");
+        MessageHandler.getInstance().sendToAllSubscribers("Client " + this.subscriberId + " has entered the room", true);
     }
 
     private boolean sendKeepAliveSignal() throws IOException
@@ -85,7 +85,7 @@ class ClientHandler implements Runnable
                 switch (messageFromClient) {
                     case "DISCONNECT" -> this.disconnectClient();
                     case "HEARTBEAT" -> lastHeartBeat = System.currentTimeMillis();
-                    default -> MessageHandler.getInstance().sendToAllSubscribers("[Client " + this.subscriberId + "]: " + messageFromClient);
+                    default -> MessageHandler.getInstance().sendToAllSubscribers("[Client " + this.subscriberId + "]: " + messageFromClient, false);
                 }
             } catch (IOException e) {}
         }
@@ -94,7 +94,7 @@ class ClientHandler implements Runnable
     private void disconnectClient()
     {
         System.out.println("Disconnecting client " + this.subscriberId);
-        MessageHandler.getInstance().sendToAllSubscribers("Client " + this.subscriberId + " left the room");
+        MessageHandler.getInstance().sendToAllSubscribers("Client " + this.subscriberId + " left the room", true);
         MessageHandler.getInstance().unsubscribe(this.subscriberId);
         this.tryCloseConnection();
     }

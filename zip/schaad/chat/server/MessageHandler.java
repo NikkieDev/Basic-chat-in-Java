@@ -23,7 +23,7 @@ class MessageHandler
 
         if (this.subscribers.size() >= 2) {
             System.out.println("reached 2 users");
-            this.sendToAllSubscribers("Hello all! We currently have " + String.valueOf(this.subscribers.size()) + " connections");
+            this.sendToAllSubscribers("Hello all! We currently have " + String.valueOf(this.subscribers.size()) + " connections", true);
         }
 
         return subscriberId;
@@ -41,10 +41,15 @@ class MessageHandler
         return this.subscribers;
     }
 
-    public void sendToAllSubscribers(String message)
+    public void sendToAllSubscribers(String message, boolean systemMessage)
     {
         for (int i : this.subscribers.keySet()) {
-            this.subscribers.get(i).sendMessage(message);
+            if (systemMessage) {
+                this.subscribers.get(i).sendMessage("[System]: " + String.valueOf(message));
+            } else {
+                // this.subscribers.get(i).sendMessage(message);
+            }
+
         }
     }
 }
