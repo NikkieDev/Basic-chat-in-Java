@@ -16,6 +16,14 @@ void Terminal::PrintDebugMessage(
     std::cout << "[Debug] " << message << std::endl;
 }
 
+void Terminal::PrintChatMessage(
+    std::string message
+)
+{
+    std::cout << message << std::endl;
+}
+
+
 void Terminal::Chatting()
 {
     std::cout << "You: ";

@@ -4,7 +4,8 @@
 class AbstractRunnable
 {
     public:
-        virtual void Run();
+        virtual void Run() = 0;
+        virtual ~AbstractRunnable() = default;
 };
 
 #endif

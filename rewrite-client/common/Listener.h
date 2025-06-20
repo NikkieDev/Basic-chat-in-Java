@@ -6,15 +6,13 @@
 
 class AbstractListener
 {
-    private:
-        virtual void Run();
-        virtual SOCKET GetSocketFD();
-        void SetSocketFD(const SOCKET SockFD);
-        bool MatchesCommand(const std::string& input);
 
     public:
-        void Run();
-        void Stop();
+        virtual void Stop() = 0;
+        virtual SOCKET GetSocketFD() = 0;
+        virtual void SetSocketFD(const SOCKET SockFD) = 0;
+        virtual bool MatchesCommand(const std::string& input) = 0;
+        virtual ~AbstractListener() = default;
 };
 
 

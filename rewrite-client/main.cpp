@@ -35,7 +35,10 @@ int main()
         exit(UNABLE_TO_CONNECT);
     }
 
+    std::thread MessageListenerThread(&ConnectionHandler::ListenForMessages, connectionHandler);
     std::thread InputThread(&ConnectionHandler::ListenForInput, connectionHandler);
+
+    MessageListenerThread.join();
     InputThread.join();
 
     terminal->PrintSystemMessage("You've left the chatroom.");

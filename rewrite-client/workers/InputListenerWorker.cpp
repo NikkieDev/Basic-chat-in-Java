@@ -7,14 +7,14 @@
 InputListenerWorker::InputListenerWorker(const SOCKET SockFD)
 {
     this->listening = true;
-    this->SetSockFD(SockFD);
+    this->SetSocketFD(SockFD);
 }
 
 InputListenerWorker::~InputListenerWorker()
 {
 }
 
-void InputListenerWorker::SetSockFD(const SOCKET SockFD)
+void InputListenerWorker::SetSocketFD(const SOCKET SockFD)
 {
     this->SockFD = SockFD;
 }
@@ -70,3 +70,7 @@ void InputListenerWorker::Run()
         terminal->Chatting();
     }
 }
+
+// Current problem -> debug the "keepalive"
+// -> beautify the reading process and writing process
+// -> fix disconnect not stopping the listeners

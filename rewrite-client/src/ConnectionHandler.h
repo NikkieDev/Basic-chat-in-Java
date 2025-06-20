@@ -21,6 +21,7 @@ class ConnectionHandler
        static ConnectionHandler* GetInstance();
        void ConnectTo(const std::string& ip, int port);
        void ListenForInput();
+       void ListenForMessages();
 };
 
 

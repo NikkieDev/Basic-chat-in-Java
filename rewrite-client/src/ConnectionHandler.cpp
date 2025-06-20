@@ -1,5 +1,6 @@
 #include "ConnectionHandler.h"
 #include "../workers/InputListenerWorker.h"
+#include "../workers/IncomingTrafficListenerWorker.h"
 
 #include <string>
 #include <stdexcept>
@@ -67,5 +68,11 @@ void ConnectionHandler::ConnectTo(const std::string& ip, int port)
 void ConnectionHandler::ListenForInput()
 {
     InputListenerWorker worker(this->getSocketFD());
+    worker.Run();
+}
+
+void ConnectionHandler::ListenForMessages()
+{
+    IncomingTrafficListenerWorker worker(this->getSocketFD());
     worker.Run();
 }

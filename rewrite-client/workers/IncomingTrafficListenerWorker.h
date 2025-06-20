@@ -10,8 +10,10 @@ class IncomingTrafficListenerWorker : public AbstractRunnable, public AbstractLi
     private:
         bool listening;
         SOCKET SockFD;
-        void SetSockFD(const SOCKET SockFD);
+        void SetSocketFD(const SOCKET SockFD);
         SOCKET GetSocketFD();
+        bool MatchesCommand(const std::string& input);
+
     public:
         IncomingTrafficListenerWorker(const SOCKET SockFD);
         ~IncomingTrafficListenerWorker();

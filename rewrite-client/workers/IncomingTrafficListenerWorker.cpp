@@ -1,11 +1,12 @@
 #include "IncomingTrafficListenerWorker.h"
+#include "InputListenerWorker.h"
 #include "../src/Terminal.h"
 #include <string>
 
 IncomingTrafficListenerWorker::IncomingTrafficListenerWorker(const SOCKET SockFD)
 {
     this->listening = true;
-    this->SetSockFD(SockFD);
+    this->SetSocketFD(SockFD);
 }
 
 IncomingTrafficListenerWorker::~IncomingTrafficListenerWorker()
@@ -17,7 +18,7 @@ void IncomingTrafficListenerWorker::Stop()
     this->listening = false;
 }
 
-void IncomingTrafficListenerWorker::SetSockFD(const SOCKET SockFD)
+void IncomingTrafficListenerWorker::SetSocketFD(const SOCKET SockFD)
 {
     this->SockFD = SockFD;
 }
@@ -25,6 +26,18 @@ void IncomingTrafficListenerWorker::SetSockFD(const SOCKET SockFD)
 SOCKET IncomingTrafficListenerWorker::GetSocketFD()
 {
     return this->SockFD;
+}
+
+bool IncomingTrafficListenerWorker::MatchesCommand(const std::string& command)
+{
+    InputListenerWorker* inputWorker;
+
+    if ("KEEPALIVE" == command) {
+        inputWorker->SendMessageToServer("HEARTBEAT");
+        return true;
+    }
+
+    return false;
 }
 
 void IncomingTrafficListenerWorker::Run()
@@ -40,6 +53,10 @@ void IncomingTrafficListenerWorker::Run()
         memoryBuffer[received] = '\0';
         std::string message(memoryBuffer);
 
+        if (this->MatchesCommand(message)) {
+            continue;
+        }
 
+        terminal->PrintChatMessage(message);
     }
 }

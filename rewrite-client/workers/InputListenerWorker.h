@@ -13,8 +13,7 @@ class InputListenerWorker : public AbstractRunnable, public AbstractListener
         SOCKET SockFD;
         bool listening;
         SOCKET GetSocketFD();
-        void SetSockFD(const SOCKET SockFD);
-        void SendMessageToServer(const std::string& message);
+        void SetSocketFD(const SOCKET SockFD);
         bool MatchesCommand(const std::string& input);
 
     public:
@@ -22,6 +21,7 @@ class InputListenerWorker : public AbstractRunnable, public AbstractListener
         ~InputListenerWorker();
         void Run();
         void Stop();
+        void SendMessageToServer(const std::string& message); // TODO: move to ConnectionHandler
 };
 
 #endif

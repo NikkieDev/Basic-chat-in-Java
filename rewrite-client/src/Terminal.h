@@ -7,6 +7,7 @@ class Terminal {
     public:
         void PrintSystemMessage(std::string message);
         void PrintDebugMessage(std::string message);
+        void PrintChatMessage(std::string message);
         void Chatting();
         void NewLine();
 };
