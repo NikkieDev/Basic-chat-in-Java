@@ -3,11 +3,13 @@
 
 #include "../common/Runnable.h"
 #include "../common/Listener.h"
+#include "../src/Terminal.h"
 #include <WinSock2.h>
 
 class IncomingTrafficListenerWorker : public AbstractRunnable, public AbstractListener
 {
     private:
+        Terminal terminal;
         bool listening;
         SOCKET SockFD;
         void SetSocketFD(const SOCKET SockFD);

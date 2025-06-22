@@ -27,9 +27,6 @@ int main()
     try {
         connectionHandler = ConnectionHandler::GetInstance();
         connectionHandler->ConnectTo("127.0.0.1", 8080);
-
-        terminal->PrintSystemMessage("You've been connected you can start typing now!");
-        terminal->Chatting();
     } catch (const std::runtime_error& e) {
         terminal->PrintSystemMessage(e.what());
         exit(UNABLE_TO_CONNECT);
@@ -39,6 +36,9 @@ int main()
     std::thread InputThread(&ConnectionHandler::ListenForInput, connectionHandler);
 
     MessageListenerThread.join();
+
+    terminal->PrintSystemMessage("You've been connected you can start typing now!");
+
     InputThread.join();
 
     terminal->PrintSystemMessage("You've left the chatroom.");

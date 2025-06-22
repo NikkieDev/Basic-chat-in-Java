@@ -1,6 +1,7 @@
 #include "IncomingTrafficListenerWorker.h"
-#include "InputListenerWorker.h"
+#include "../src/ConnectionHandler.h"
 #include "../src/Terminal.h"
+#include "../common/TextUtil.h"
 #include <string>
 
 IncomingTrafficListenerWorker::IncomingTrafficListenerWorker(const SOCKET SockFD)
@@ -30,10 +31,9 @@ SOCKET IncomingTrafficListenerWorker::GetSocketFD()
 
 bool IncomingTrafficListenerWorker::MatchesCommand(const std::string& command)
 {
-    InputListenerWorker* inputWorker;
-
+    ConnectionHandler* handler = ConnectionHandler::GetInstance();
     if ("KEEPALIVE" == command) {
-        inputWorker->SendMessageToServer("HEARTBEAT");
+        handler->SendMessageToServer("HEARTBEAT\n");
         return true;
     }
 
@@ -42,21 +42,23 @@ bool IncomingTrafficListenerWorker::MatchesCommand(const std::string& command)
 
 void IncomingTrafficListenerWorker::Run()
 {
-    Terminal* terminal;
-    char memoryBuffer[512];
-
     while (this->listening) {
+        char memoryBuffer[512];
         int received = recv(this->GetSocketFD(), memoryBuffer, sizeof(memoryBuffer)-1, 0);
         
         if (0 >= received) continue;
 
         memoryBuffer[received] = '\0';
-        std::string message(memoryBuffer);
+        std::string message(memoryBuffer, received);
 
-        if (this->MatchesCommand(message)) {
+        std::string rawMessage = message;
+        TextUtil::removeCarriage(&rawMessage);
+        TextUtil::removeNewlines(&rawMessage);
+
+        if (!TextUtil::isSystemMessage(rawMessage) && this->MatchesCommand(rawMessage)) {
             continue;
         }
 
-        terminal->PrintChatMessage(message);
+        this->terminal.PrintChatMessage(message);
     }
 }

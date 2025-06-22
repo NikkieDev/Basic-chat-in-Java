@@ -1,4 +1,5 @@
 #include "InputListenerWorker.h"
+#include "../src/ConnectionHandler.h"
 #include "../src/Terminal.h"
 #include <string>
 #include <iostream>
@@ -7,6 +8,7 @@
 InputListenerWorker::InputListenerWorker(const SOCKET SockFD)
 {
     this->listening = true;
+    this->Connection = ConnectionHandler::GetInstance();
     this->SetSocketFD(SockFD);
 }
 
@@ -24,15 +26,6 @@ SOCKET InputListenerWorker::GetSocketFD()
     return this->SockFD;
 }
 
-void InputListenerWorker::SendMessageToServer(const std::string& message)
-{
-    int sendResult = send(this->GetSocketFD(), message.c_str(), static_cast<int>(message.length()), 0);
-
-    if (SOCKET_ERROR == sendResult) {
-        throw std::runtime_error("Unable to send message, " + WSAGetLastError());
-    }
-}
-
 void InputListenerWorker::Stop()
 {
     this->listening = false;
@@ -41,7 +34,7 @@ void InputListenerWorker::Stop()
 bool InputListenerWorker::MatchesCommand(const std::string& command)
 {
     if ("DISCONNECT" == command) {
-        this->Stop();
+        this->Connection->Disconnect();
         return true;
     }
 
@@ -50,6 +43,7 @@ bool InputListenerWorker::MatchesCommand(const std::string& command)
 
 void InputListenerWorker::Run()
 {
+    ConnectionHandler* handler = ConnectionHandler::GetInstance();
     Terminal* terminal;
 
     while (this->listening) {
@@ -65,12 +59,9 @@ void InputListenerWorker::Run()
         }
 
         input = input + "\n";
-        this->SendMessageToServer(input);
-
-        terminal->Chatting();
+        handler->SendMessageToServer(input);
     }
 }
 
-// Current problem -> debug the "keepalive"
 // -> beautify the reading process and writing process
 // -> fix disconnect not stopping the listeners

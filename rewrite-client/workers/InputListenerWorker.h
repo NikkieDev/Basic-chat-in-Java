@@ -3,6 +3,7 @@
 
 #include "../common/Runnable.h"
 #include "../common/Listener.h"
+#include "../src/ConnectionHandler.h"
 
 #include <string>
 #include <WinSock2.h>
@@ -10,6 +11,7 @@
 class InputListenerWorker : public AbstractRunnable, public AbstractListener
 {
     private:
+        ConnectionHandler* Connection;
         SOCKET SockFD;
         bool listening;
         SOCKET GetSocketFD();
@@ -21,7 +23,6 @@ class InputListenerWorker : public AbstractRunnable, public AbstractListener
         ~InputListenerWorker();
         void Run();
         void Stop();
-        void SendMessageToServer(const std::string& message); // TODO: move to ConnectionHandler
 };
 
 #endif

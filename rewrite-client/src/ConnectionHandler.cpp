@@ -65,14 +65,63 @@ void ConnectionHandler::ConnectTo(const std::string& ip, int port)
     this->setConnection(connection);
 }
 
+void ConnectionHandler::Disconnect()
+{
+    this->StopListeningForInput();
+    this->StopListeningForMessages();
+    this->setConnection(-1);
+    this->setSocketFD(-1);
+}
+
 void ConnectionHandler::ListenForInput()
 {
     InputListenerWorker worker(this->getSocketFD());
     worker.Run();
+    this->setInputWorker(&worker);
+}
+
+void ConnectionHandler::StopListeningForInput()
+{
+    this->GetInputWorker()->Stop();
 }
 
 void ConnectionHandler::ListenForMessages()
 {
     IncomingTrafficListenerWorker worker(this->getSocketFD());
     worker.Run();
+    this->setTrafficListenerWorker(&worker);
+}
+
+void ConnectionHandler::StopListeningForMessages()
+{
+    this->GetTrafficListenerWorker()->Stop();
+}
+
+void ConnectionHandler::setInputWorker(InputListenerWorker* worker)
+{
+    this->InputWorker = worker;
+}
+
+void ConnectionHandler::setTrafficListenerWorker(IncomingTrafficListenerWorker* worker)
+{
+    this->TrafficListenerWorker = worker;
+}
+
+InputListenerWorker* ConnectionHandler::GetInputWorker()
+{
+    return this->InputWorker;
+}
+
+IncomingTrafficListenerWorker* ConnectionHandler::GetTrafficListenerWorker()
+{
+    return this->TrafficListenerWorker;
+}
+
+void ConnectionHandler::SendMessageToServer(const std::string& message)
+{
+    int sendResult = send(this->getSocketFD(), message.c_str(), static_cast<int>(message.length()), 0);
+
+    if (SOCKET_ERROR == sendResult) {
+        throw std::runtime_error("Unable to send message, " + WSAGetLastError());
+    }
 }
